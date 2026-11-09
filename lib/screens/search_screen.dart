@@ -13,7 +13,7 @@ class _SearchScreenState extends State<SearchScreen> {
   List<Candi> filterCandis = [];
   String searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
-
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
