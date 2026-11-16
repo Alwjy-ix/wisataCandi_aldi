@@ -15,23 +15,70 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  int _selectedIndex = 0;
+
+  Widget _buildGrid(List<Candi> candis) {
+    if (candis.isEmpty) {
+      return const Center(child: Text('Belum ada candi favorit'));
+    }
+
+    return GridView.builder(
+      padding: const EdgeInsets.all(8),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 4,
+        mainAxisSpacing: 4,
+        childAspectRatio: 1.03,
+      ),
+      itemCount: candis.length,
+      itemBuilder: (context, index) => ItemCard(candi: candis[index]),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final title = switch (_selectedIndex) {
+      0 => 'Wisata Candi',
+      2 => 'Favorit',
+      _ => null,
+    };
+
     return Scaffold(
-      // TODO: 1 Buat appbar dengan judul Wisata Candi
-      appBar: AppBar(title: const Text('Wisata Candi')),
-      // TODO: 2 Buat body dengan GridView.builder
-      body: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
+      appBar: title == null
+          ? null
+          : AppBar(
+              title: Text(title),
+              backgroundColor: Colors.deepPurple[50],
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+            ),
+      body: switch (_selectedIndex) {
+        0 => _buildGrid(candiList),
+        1 => const SearchScreen(),
+        2 => _buildGrid(
+          candiList
+              .where(
+                (candi) =>
+                    context.watch<FavoriteProvider>().isFavorite(candi.name),
+              )
+              .toList(),
         ),
-        padding: const EdgeInsets.all(8),
-        itemCount: candiList.length,
-        itemBuilder: (context, index) {
-          // TODO: 3 Buat ItemCard sebagai return value dari GridView.builder
-          Candi candi = candiList[index];
-          return ItemCard(candi: candi);
-        },
+        _ => const ProfileScreen(),
+      },
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: (index) => setState(() => _selectedIndex = index),
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: Colors.deepPurple[50],
+        selectedItemColor: Colors.deepPurple,
+        unselectedItemColor: Colors.deepPurple[300],
+        showUnselectedLabels: false,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: 'Favorit'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+        ],
       ),
     );
   }
